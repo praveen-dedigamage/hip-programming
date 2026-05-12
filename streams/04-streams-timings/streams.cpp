@@ -78,9 +78,9 @@ int main() {
   float *c; float *d_c;
 
   // Host allocations
-  a = (float*) malloc(N_bytes);
-  b = (float*) malloc(N_bytes);
-  c = (float*) malloc(N_bytes);
+  HIP_ERRCHK(hipHostMalloc((void**)&a, N_bytes));
+  HIP_ERRCHK(hipHostMalloc((void**)&b, N_bytes));
+  HIP_ERRCHK(hipHostMalloc((void**)&c, N_bytes));
 
   hipStream_t stream_a;
   hipStream_t stream_b;
@@ -104,9 +104,9 @@ int main() {
   HIP_ERRCHK(hipStreamCreate(&stream_c));
 
   // Device allocations
-  HIP_ERRCHK(hipMallocAsync((void**)&d_a, N_bytes, stream_a));
-  HIP_ERRCHK(hipMallocAsync((void**)&d_b, N_bytes, stream_b));
-  HIP_ERRCHK(hipMallocAsync((void**)&d_c, N_bytes, stream_c));
+  HIP_ERRCHK(hipMalloc((void**)&d_a, N_bytes));
+  HIP_ERRCHK(hipMalloc((void**)&d_b, N_bytes));
+  HIP_ERRCHK(hipMalloc((void**)&d_c, N_bytes));
 
   // warmup
   kernel_c<<<gridsize, blocksize>>>(d_a, N);
@@ -179,8 +179,8 @@ int main() {
   HIP_ERRCHK(hipEventDestroy(start_c));
   HIP_ERRCHK(hipEventDestroy(end_c));
 
-  free(a);
-  free(b);
-  free(c);
+  HIP_ERRCHK(hipHostFree(a));
+  HIP_ERRCHK(hipHostFree(b));
+  HIP_ERRCHK(hipHostFree(c));
 
 }
