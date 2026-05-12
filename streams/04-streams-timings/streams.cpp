@@ -86,9 +86,11 @@ int main() {
   hipStream_t stream_b;
   hipStream_t stream_c;
 
-  hipevent_t start_a, end_a;
-  hipevent_t start_b, end_b;
-  hipevent_t start_c, end_c;
+  hipEvent_t start_a, end_a;
+  hipEvent_t start_b, end_b;
+  hipEvent_t start_c, end_c;
+
+  float elapsedTime;
 
   HIP_ERRCHK(hipEventCreate(&start_a));
   HIP_ERRCHK(hipEventCreate(&end_a));  
@@ -147,8 +149,8 @@ int main() {
 
   for (int i = 0; i < 20; ++i) printf("%f ", c[i]);
   printf("\n");
-
-    HIP_ERRCHK(hipEventElapsedTime(&elapsedTime, start_a, end_a));
+  
+  HIP_ERRCHK(hipEventElapsedTime(&elapsedTime, start_a, end_a));
   printf("Time for kernel_a: %f ms\n", elapsedTime);
 
   HIP_ERRCHK(hipEventElapsedTime(&elapsedTime, start_b, end_b));
