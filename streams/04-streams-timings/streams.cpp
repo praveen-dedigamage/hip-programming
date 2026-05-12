@@ -141,12 +141,15 @@ int main() {
   HIP_ERRCHK(hipStreamSynchronize(stream_c));
   HIP_ERRCHK(hipMemcpyAsync(c, d_c, N_bytes, hipMemcpyDefault, stream_c));
 
+  HIP_ERRCHK(hipDeviceSynchronize(stream_a));
   for (int i = 0; i < 20; ++i) printf("%f ", a[i]);
   printf("\n");
 
+  HIP_ERRCHK(hipDeviceSynchronize(stream_b));
   for (int i = 0; i < 20; ++i) printf("%f ", b[i]);
   printf("\n");
 
+  HIP_ERRCHK(hipDeviceSynchronize(stream_c));
   for (int i = 0; i < 20; ++i) printf("%f ", c[i]);
   printf("\n");
   
