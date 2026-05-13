@@ -26,12 +26,14 @@ int main(int argc, char* argv[]) {
   // TODO obtain node local rank by creating "SHARED" communicator 
   MPI_Comm node_comm;
   MPI_Comm_split_type(MPI_COMM_WORLD, MPI_COMM_TYPE_SHARED, 0, MPI_INFO_NULL, &node_comm);
-
   MPI_Comm_rank(node_comm, &node_rank);
-  // TODO query number of devices and set different device for each local MPI rank
   hipGetDeviceCount(&num_devices);
-  hipSetDevice(node_rank % num_devices);
-  hipGetDevice(&my_device);
+  // TODO query number of devices and set different device for each local MPI rank
+  my_device = node_rank % num_devices; 
+
+  if(num_devices > 0) {
+    hipSetDevice(my_device);
+  }
 
   if (0 == rank) {
     printf("Total number of MPI processes: %d\n", size);
