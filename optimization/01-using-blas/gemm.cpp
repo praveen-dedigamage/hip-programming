@@ -1,7 +1,9 @@
 #include <hip/hip_runtime.h>
+#include <hipblas/hipblas.h>
 
 #include <cstdio>
 #include <cstdlib>
+#include <cmath>
 #include <chrono>
 #include <vector>
 #include <random>
@@ -74,6 +76,7 @@ void naive_gemm(
 
 int main(int argc, char* argv[])
 {
+
     if (argc != 3) {
 
         printf("Usage:\n");
@@ -174,8 +177,69 @@ int main(int argc, char* argv[])
     printf("\nSample output:\n");
     printf("C[0] = %f\n", hC[0]);
 
-    // TODO implement the matrix multiplication with hipblasSgemm
+    // hipBLAS GEMM
+    hipblasHandle_t handle;
+    HIPBLAS_CHECK(hipblasCreate(&handle));
 
+    float alpha = 1.0f;
+    float beta = 0.0f;
+
+    // Reset C for hipBLAS computation
+    HIP_CHECK(hipMemset(C, 0, sizeC));
+
+    // Warmup
+    for (int i = 0; i < warmup; i++) {
+        HIPBLAS_CHECK(hipblasSgemm(handle, HIPBLAS_OP_N, HIPBLAS_OP_N, M, N, K, &alpha, A, K, B, N, &beta, C, N));
+    }
+
+    HIP_CHECK(hipDeviceSynchronize());
+
+    total_ms = 0.0;
+
+    for (int i = 0; i < repeat; i++) {
+        HIP_CHECK(hipDeviceSynchronize());
+
+        auto start = std::chrono::high_resolution_clock::now();
+
+        HIPBLAS_CHECK(hipblasSgemm(handle, HIPBLAS_OP_N, HIPBLAS_OP_N, M, N, K, &alpha, A, K, B, N, &beta, C, N));
+
+        HIP_CHECK(hipDeviceSynchronize());
+
+        auto stop = std::chrono::high_resolution_clock::now();
+
+        total_ms += elapsed_ms(start, stop);
+    }
+
+    double hipblas_time = total_ms / repeat;
+    double hipblas_gflops = flops / (hipblas_time * 1e6);
+
+    printf("\nhipBLAS GEMM:\n");
+    printf("Average Time: %.3f ms\n", hipblas_time);
+    printf("Performance: %.2f GFLOP/s\n", hipblas_gflops);
+
+    // Copy back result for verification
+    std::vector<float> hC_hipblas(static_cast<size_t>(M) * N);
+    HIP_CHECK(hipMemcpy(hC_hipblas.data(), C, sizeC, hipMemcpyDeviceToHost));
+
+    printf("\nSample output:\n");
+    printf("C[0] = %f\n", hC_hipblas[0]);
+
+    // Verify results match
+    bool results_match = true;
+    for (size_t i = 0; i < hC.size(); i++) {
+        float diff = std::abs(hC[i] - hC_hipblas[i]);
+        if (diff > 1e-3) {
+            results_match = false;
+            printf("Mismatch at index %zu: naive = %f, hipblas = %f\n", i, hC[i], hC_hipblas[i]);
+            break;
+        }
+    }
+
+    if (results_match) {
+        printf("Results match between naive and hipBLAS implementation!\n");
+    }
+
+    HIPBLAS_CHECK(hipblasDestroy(handle));
 
     // Cleanup
     hipFree(A);
