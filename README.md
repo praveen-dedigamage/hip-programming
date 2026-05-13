@@ -49,7 +49,7 @@ Siili document for additional info during the course: https://siili.rahtiapp.fi/
 | 13:00-13:45 | [Exercises cont'd](memory/) |
 | 13:45-14:00 | Break |
 | 14:00-14:30 | Inspecting exercise traces, rocprof |
-| 14:30-15:00 | Bonus exercise |
+| 14:30-15:00 | [Bonus exercise](streams/0X-bonus-cpu-gpu-overlap/) |
 | 15:00-16:00 | Close-up |
 
 
@@ -102,7 +102,7 @@ Link to [slides](https://csc-training.github.io/hip-programming/)
 - [Running concurrent GPU kernels](streams/02-streams-asynckernel/)
 - [Asynchronous data transfers between CPU and GPU](streams/03-streams-asyncmemcpy/)
 - [Recording and timing GPU kernels with HIP events](streams/04-streams-timings/)
-- [Overlapping CPU and GPU computation](streams/0X-bonus-cpu-gpu-overlap/)
+- Bonus: [Overlapping CPU and GPU computation](streams/0X-bonus-cpu-gpu-overlap/)
 
 ### Memory allocations, access, and unified memory
 
@@ -122,7 +122,9 @@ Link to [slides](https://csc-training.github.io/hip-programming/)
 
 ### Multi-GPU programming and HIP+MPI
 
-- [Ping-pong with multiple GPUs and MPI](multi-gpu/03-mpi)
+- [Hello world](multi-gpu/01-hello)
+- [Ping-pong with multiple GPUs and MPI](multi-gpu/02-mpi-pingpong)
+- Bonus: [Overlapping communication and computation](multi-gpu/03-overlap)
 
 ### Porting to HIP
 
